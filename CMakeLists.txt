@@ -126,6 +126,9 @@ option(USE_STD_VECTOR "Use std::vector instead of own Array class" OFF)
 # Setting this option will compile the ObjectStream class and RTTI attribute information
 option(ENABLE_OBJECT_STREAM "Compile the ObjectStream class and RTTI attribute information" ON)
 
+# Allow specifying an explicit path to a local JoltPhysics project (either relative or absolute)
+set(JOLTPHYSICS_PATH "" CACHE PATH "Explicit path to local JoltPhysics project")
+
 option(JPH_INSTALL "Install target" ${JPH_MASTER_PROJECT})
 option(JPH_SAMPLES "Build samples" ${JPH_MASTER_PROJECT})
 
@@ -141,7 +144,15 @@ if (JPH_MASTER_PROJECT AND NOT CMAKE_BUILD_TYPE)
 endif ()
 
 # Search for local JoltPhysics first
-if(EXISTS "${CMAKE_SOURCE_DIR}/JoltPhysics/Build/CMakeLists.txt")
+if(JOLTPHYSICS_PATH AND EXISTS "${JOLTPHYSICS_PATH}/Build/CMakeLists.txt")
+    message(STATUS "Using explicitly requested local JoltPhysics from ${JOLTPHYSICS_PATH}")
+
+    FetchContent_Declare(
+        JoltPhysics
+        SOURCE_DIR "${JOLTPHYSICS_PATH}"
+        SOURCE_SUBDIR "Build"
+    )
+elseif(EXISTS "${CMAKE_SOURCE_DIR}/JoltPhysics/Build/CMakeLists.txt")
     message(STATUS "Using local JoltPhysics from ${CMAKE_SOURCE_DIR}/JoltPhysics")
 
     FetchContent_Declare(
