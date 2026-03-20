@@ -54,6 +54,9 @@ option(DOUBLE_PRECISION "Use double precision math" OFF)
 # When turning this option on, the library will be compiled with debug symbols
 option(GENERATE_DEBUG_SYMBOLS "Generate debug symbols" OFF)
 
+# Which type of debug symbols to generate, e.g. using source-map when compiling with emscripten makes compilation a lot faster
+set(JPH_DEBUG_SYMBOL_FORMAT "" CACHE STRING "Which type of debug symbols to generate")
+
 # When turning this option on, the library will override the default CMAKE_CXX_FLAGS_DEBUG/RELEASE values, otherwise they will use the platform defaults
 option(OVERRIDE_CXX_FLAGS "Override CMAKE_CXX_FLAGS_DEBUG/RELEASE" ON)
 
@@ -200,6 +203,12 @@ if (MSVC)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall /WX")
 	endif()
 
+	# Optionally generate debug symbols
+	if (GENERATE_DEBUG_SYMBOLS)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zi")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zi")
+	endif()
+
 	# Set compiler flag for disabling RTTI
 	if (NOT CPP_RTTI_ENABLED)
 		# Set compiler flag for disabling RTTI
@@ -224,6 +233,10 @@ if (MSVC)
 
 	# Set linker flags
 	set(CMAKE_EXE_LINKER_FLAGS "/SUBSYSTEM:WINDOWS /ignore:4221")
+	if (GENERATE_DEBUG_SYMBOLS)
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /DEBUG")
+		set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEBUG")
+	endif()
 	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 		if (CROSS_PLATFORM_DETERMINISTIC)
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:precise")
@@ -238,6 +251,12 @@ else()
 	# Enable warnings
 	if (ENABLE_ALL_WARNINGS)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
+	endif()
+
+	# Optionally generate debug symbols
+	if (GENERATE_DEBUG_SYMBOLS)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g${JPH_DEBUG_SYMBOL_FORMAT}")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g${JPH_DEBUG_SYMBOL_FORMAT}")
 	endif()
 
 	# Set compiler flag for disabling RTTI
