@@ -349,10 +349,14 @@ if (MSVC)
 	# Enable full optimization in dev/release
 	target_compile_options(${TARGET_NAME} PRIVATE $<$<CONFIG:Debug>:/Od> $<$<NOT:$<CONFIG:Debug>>:/Ox>)
 
-	# Inline function expansion
+	# Inline function expansion (clear out any pre-existing '/Ob0' to avoid compilation warnings)
+	string(REPLACE "/Ob0" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+	string(REPLACE "/Ob0" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+	string(REPLACE "/Ob0" "" CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+	string(REPLACE "/Ob0" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
 	target_compile_options(${TARGET_NAME} PRIVATE /Ob2)
 
-	 # Enable intrinsic functions in dev/release
+	# Enable intrinsic functions in dev/release
 	target_compile_options(${TARGET_NAME} PRIVATE $<$<NOT:$<CONFIG:Debug>>:/Oi>)
 
     # Favor fast code
